@@ -72,5 +72,10 @@ int main(int argc, char *argv[]){
         }
     }
     SteamAPI_Shutdown();
+    if (std::remove("steam_appid.txt") == 0) {
+        std::cout << "steam_appid.txt removed"<< endl;
+    } else {
+        std::cout << "steam_appid.txt remove failed: " << std::strerror(errno) << endl;
+    }
     return 0;
 }
