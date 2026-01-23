@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
     if (std::remove("steam_appid.txt") == 0) {
         std::cout << "steam_appid.txt removed"<< endl;
     } else {
-        std::cout << "steam_appid.txt remove failed: " << std::strerror(errno) << endl;
+        std::cout << "steam_appid.txt remove failed: " << errno << endl;
     }
     return 0;
 }
