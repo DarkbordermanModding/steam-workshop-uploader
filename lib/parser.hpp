@@ -100,7 +100,10 @@ class Metadata {
         cout << "publishfield_id: " << this->publishedfield_id << endl;
         cout << "visibility: " << this->visibility << endl;
         cout << "title: " << this->title << endl;
-        cout << "description: " << this->description << endl;
+        string safe_desc;
+        for (unsigned char c : this->description)
+            safe_desc += (c < 0x80) ? (char)c : '?';
+        cout << "description: " << safe_desc << endl;
         cout << "preview path: " << this->preview_path << endl;
         cout << "content folder: " << this->content_folder << endl;
         cout << "tags: " << this->tags_str << endl;
