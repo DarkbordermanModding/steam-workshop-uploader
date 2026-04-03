@@ -24,6 +24,11 @@ class Metadata {
         SteamParamStringArray_t tags;
         // Store tag string for display
         string tags_str;
+        // Dependency sync fields
+        bool sync_required_publishedfield_ids = false;
+        vector<PublishedFileId_t> required_publishedfield_ids;
+        bool sync_required_app_ids = false;
+        vector<AppId_t> required_app_ids;
 
     Metadata(string path){
         string directory = getAbsoluteDirectory(path);
@@ -47,6 +52,26 @@ class Metadata {
 
         this->tags.m_ppStrings = m_ppStrings;
         this->tags.m_nNumStrings = tags.size();
+
+        string req_items_check = exec("yq -r \".workshop.required_publishedfield_ids\" " + path);
+        if (req_items_check != "null") {
+            this->sync_required_publishedfield_ids = true;
+            string ids_str = exec("yq -r \".workshop.required_publishedfield_ids | join(\\\",\\\")\" " + path);
+            if (!ids_str.empty()) {
+                for (auto& s : split_string(ids_str, ','))
+                    if (!s.empty()) this->required_publishedfield_ids.push_back(stoull(s));
+            }
+        }
+
+        string req_apps_check = exec("yq -r \".workshop.required_app_ids\" " + path);
+        if (req_apps_check != "null") {
+            this->sync_required_app_ids = true;
+            string ids_str = exec("yq -r \".workshop.required_app_ids | join(\\\",\\\")\" " + path);
+            if (!ids_str.empty()) {
+                for (auto& s : split_string(ids_str, ','))
+                    if (!s.empty()) this->required_app_ids.push_back(stoul(s));
+            }
+        }
     }
 
     void sync_steam_appid_txt(){
@@ -64,7 +89,28 @@ class Metadata {
         cout << "description: " << this->description << endl;
         cout << "preview path: " << this->preview_path << endl;
         cout << "content folder: " << this->content_folder << endl;
-        cout << "tags: " << this->tags_str << endl << endl;
+        cout << "tags: " << this->tags_str << endl;
+        if (this->sync_required_publishedfield_ids) {
+            cout << "required publishedfield ids: ";
+            for (size_t i = 0; i < this->required_publishedfield_ids.size(); i++) {
+                if (i > 0) cout << ",";
+                cout << this->required_publishedfield_ids[i];
+            }
+            cout << endl;
+        } else {
+            cout << "required publishedfield ids: (unmodified)" << endl;
+        }
+        if (this->sync_required_app_ids) {
+            cout << "required app ids: ";
+            for (size_t i = 0; i < this->required_app_ids.size(); i++) {
+                if (i > 0) cout << ",";
+                cout << this->required_app_ids[i];
+            }
+            cout << endl;
+        } else {
+            cout << "required app ids: (unmodified)" << endl;
+        }
+        cout << endl;
     }
 };
 #endif
