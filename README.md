@@ -39,6 +39,8 @@ workshop:
   preview_path: preview.png
   content_folder: "./example/"
   tags: [ tag1, tag2 ]
+  required_publishedfield_ids: [ 123456789, 987654321 ]
+  required_app_ids: [ 12345, 67890 ]
 ```
 
 ## YAML properties description
@@ -52,4 +54,6 @@ workshop:
 | tags | list of string | Tags of workshop item | `[ tag1, tag2 ]` |
 | preview_path | string | Relative/Absolute path of preview image, will be used as first/thumbnail image | `preview.png` |
 | content_folder | string | Relative/Absolute path of workshop item folder | `./example` |
+| required_publishedfield_ids | list of integer (optional) | Required Workshop item dependencies by published file ID. If present, replaces all existing dependencies. | `[ 123456789, 987654321 ]` |
+| required_app_ids | list of integer (optional) | Required DLC/app dependencies by App ID. If present, replaces all existing app dependencies. | `[ 12345, 67890 ]` |
 

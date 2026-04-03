@@ -71,6 +71,38 @@ int main(int argc, char *argv[]){
             break;
         }
     }
+
+    if(metadata.sync_required_publishedfield_ids || metadata.sync_required_app_ids){
+        if(metadata.sync_required_publishedfield_ids)
+            workshop.StartModDepQuery(metadata.publishedfield_id);
+        else
+            workshop.mod_query_status = 1;
+
+        if(metadata.sync_required_app_ids)
+            workshop.StartDLCDepQuery(metadata.publishedfield_id);
+        else
+            workshop.dlc_query_status = 1;
+
+        while(true){
+            SteamAPI_RunCallbacks();
+            Sleep(500);
+            if(workshop.mod_query_status != 0 && workshop.dlc_query_status != 0) break;
+            cout << "Querying existing dependencies..." << endl;
+        }
+
+        if(workshop.mod_query_status == -1)
+            cout << "Warning: failed to query existing mod dependencies, skipping mod dep sync" << endl;
+        if(workshop.dlc_query_status == -1)
+            cout << "Warning: failed to query existing DLC dependencies, skipping DLC dep sync" << endl;
+
+        workshop.StartDepOps(metadata.publishedfield_id, metadata);
+        while(workshop.dep_sync_status == 0){
+            SteamAPI_RunCallbacks();
+            Sleep(500);
+            cout << "Syncing dependencies..." << endl;
+        }
+        cout << "Dependency sync complete" << endl;
+    }
     SteamAPI_Shutdown();
     if (std::remove("steam_appid.txt") == 0) {
         std::cout << "steam_appid.txt removed"<< endl;
