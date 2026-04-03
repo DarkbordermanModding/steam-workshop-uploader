@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "libsteam/isteamremotestorage.h"
+#include "md_to_steam.hpp"
 #include "utilities.hpp"
 
 using namespace std;
@@ -32,7 +33,20 @@ class Metadata {
         this->publishedfield_id = stoull(exec("yq -r \".workshop.publishedfield_id\" " + path));
         this->visibility = static_cast<ERemoteStoragePublishedFileVisibility>(stoi(exec("yq -r \".workshop.visibility\" " + path)));
         this->title = exec("yq -r \".workshop.title\" " + path);
-        this->description = exec("yq -r \".workshop.description\" " + path);
+
+        string desc_path_raw = exec("yq -r \".workshop.description_path\" " + path);
+        if (desc_path_raw != "null" && !desc_path_raw.empty()) {
+            string desc_path = getAbsolutePath(directory, desc_path_raw);
+            ifstream desc_file(desc_path);
+            if (!desc_file.is_open()) {
+                throw runtime_error("description_path not found: " + desc_path);
+            }
+            string md_content((istreambuf_iterator<char>(desc_file)), istreambuf_iterator<char>());
+            this->description = md_to_steam(md_content);
+        } else {
+            this->description = exec("yq -r \".workshop.description\" " + path);
+        }
+
         this->content_folder = getAbsolutePath(directory, exec("yq -r \".workshop.content_folder\" " + path));
         this->preview_path = getAbsolutePath(directory, exec("yq -r \".workshop.preview_path\" " + path));
 

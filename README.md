@@ -34,7 +34,8 @@ workshop:
   app_id: 480
   publishedfield_id: 2147483647
   title: Workshop item title
-  description: Workshop item description
+  description_path: description.md  # Markdown file, converted to Steam BBCode
+  description: Workshop item description  # plain text fallback if description_path not exist
   visibility: 2
   preview_path: preview.png
   content_folder: "./example/"
@@ -42,14 +43,15 @@ workshop:
 ```
 
 ## YAML properties description
-| Name | Value type | description | Example |
+| Name | Value type | Description | Example |
 | --- | --- | --- | --- |
-| app_id | integer | Game's application id | `480` |
-| publishfield_id | integer | Workshop's application id, set to `0` for newly uploaded item | `2147483647` |
-| title | string | Title of workshop item | `Workshop item title` |
-| description | string | Description of workshop item | `Workshop item description` |
-| visibility | integer(0/1/2/3) | Visibility of workshop item (public/friends/private/public but hidden from search) | `2` |
-| tags | list of string | Tags of workshop item | `[ tag1, tag2 ]` |
-| preview_path | string | Relative/Absolute path of preview image, will be used as first/thumbnail image | `preview.png` |
-| content_folder | string | Relative/Absolute path of workshop item folder | `./example` |
+| app_id | integer | Game's application ID | `480` |
+| publishedfield_id | integer | Workshop item's published file ID, set to `0` for a newly uploaded item | `2147483647` |
+| title | string | Title of the workshop item | `Workshop item title` |
+| description_path | string | Relative or absolute path to a Markdown file, converted to Steam BBCode on upload. Takes priority over `description` if both are set | `description.md` |
+| description | string | Plain text description of the workshop item. Used if `description_path` is not set | `Workshop item description` |
+| visibility | integer(0/1/2/3) | Visibility of the workshop item (public/friends only/private/unlisted) | `2` |
+| tags | list of string | Tags of the workshop item | `[ tag1, tag2 ]` |
+| preview_path | string | Relative or absolute path of the preview image | `preview.png` |
+| content_folder | string | Relative or absolute path of the workshop item folder | `./example` |
 
