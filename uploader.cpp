@@ -72,6 +72,26 @@ int main(int argc, char *argv[]){
         }
     }
 
+    for(auto &pair : metadata.localizations){
+        cout << "Uploading localization: " << pair.first << endl;
+        workshop.StartLocaleUpdate(metadata, pair.first, pair.second);
+        while(true){
+            SteamAPI_RunCallbacks();
+            Sleep(500);
+            if(workshop.submit_status == 1){
+                cout << "Localization upload success: " << pair.first << endl;
+                break;
+            }
+            else if(workshop.submit_status == 0){
+                cout << "Uploading" << endl;
+            }
+            else if(workshop.submit_status == -1){
+                cout << "Localization upload failed: " << pair.first << endl;
+                break;
+            }
+        }
+    }
+
     if(metadata.sync_required_publishedfield_ids || metadata.sync_required_app_ids){
         if(metadata.sync_required_publishedfield_ids)
             workshop.StartModDepQuery(metadata.publishedfield_id);

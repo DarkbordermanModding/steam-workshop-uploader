@@ -55,13 +55,23 @@ class Workshop
                 metadata.publishedfield_id = created_publishfield;
             }
             UGCUpdateHandle_t handle = SteamUGC()->StartItemUpdate(metadata.app_id, metadata.publishedfield_id);
-            SteamUGC()->SetItemTitle(handle, metadata.title.c_str());
-            SteamUGC()->SetItemDescription(handle, metadata.description.c_str());
+            SteamUGC()->SetItemTitle(handle, "Untitled");
+            SteamUGC()->SetItemDescription(handle, "No description provided");
             SteamUGC()->SetItemVisibility(handle, metadata.visibility);
             SteamUGC()->SetItemTags(handle, &metadata.tags);
             // WARN: steam_appid.txt MUST MATCH APP_ID
             SteamUGC()->SetItemPreview(handle, metadata.preview_path.c_str());
             SteamUGC()->SetItemContent(handle, metadata.content_folder.c_str());
+            SteamAPICall_t callback = SteamUGC()->SubmitItemUpdate(handle, NULL);
+            m_SubmitItemUpdateResult.Set(callback, this, &Workshop::OnGetUploadStatus);
+        }
+
+        void StartLocaleUpdate(Metadata &metadata, const string &language, const Localization &loc){
+            submit_status = 0;
+            UGCUpdateHandle_t handle = SteamUGC()->StartItemUpdate(metadata.app_id, metadata.publishedfield_id);
+            SteamUGC()->SetItemUpdateLanguage(handle, language.c_str());
+            SteamUGC()->SetItemTitle(handle, loc.title.c_str());
+            SteamUGC()->SetItemDescription(handle, loc.description.c_str());
             SteamAPICall_t callback = SteamUGC()->SubmitItemUpdate(handle, NULL);
             m_SubmitItemUpdateResult.Set(callback, this, &Workshop::OnGetUploadStatus);
         }
