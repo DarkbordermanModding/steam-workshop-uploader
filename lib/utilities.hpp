@@ -42,6 +42,14 @@ vector<string> split_string(const string& s, char delimiter) {
   return tokens;
 }
 
+string strip_non_ascii(const string& str) {
+    string safe;
+    safe.reserve(str.size());
+    for (unsigned char c : str)
+        safe += (c < 0x80) ? (char)c : '?';
+    return safe;
+}
+
 string getAbsoluteDirectory(const string& relativePath){
     char absolutePath[MAX_PATH];
     GetFullPathNameA(relativePath.c_str(), MAX_PATH, absolutePath, nullptr);

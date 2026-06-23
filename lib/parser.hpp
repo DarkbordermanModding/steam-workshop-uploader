@@ -108,15 +108,12 @@ class Metadata {
         cout << "app_id: " << this->app_id << endl;
         cout << "publishfield_id: " << this->publishedfield_id << endl;
         cout << "visibility: " << this->visibility << endl;
-        cout << "preview path: " << this->preview_path << endl;
-        cout << "content folder: " << this->content_folder << endl;
-        cout << "tags: " << this->tags_str << endl;
+        cout << "preview path: " << strip_non_ascii(this->preview_path) << endl;
+        cout << "content folder: " << strip_non_ascii(this->content_folder) << endl;
+        cout << "tags: " << strip_non_ascii(this->tags_str) << endl;
         for (auto &pair : this->localizations) {
-            cout << "  [" << pair.first << "] title: " << pair.second.title << endl;
-            string safe_desc;
-            for (unsigned char c : pair.second.description)
-                safe_desc += (c < 0x80) ? (char)c : '?';
-            cout << "  [" << pair.first << "] description: " << safe_desc << endl;
+            cout << "  [" << pair.first << "] title: " << strip_non_ascii(pair.second.title) << endl;
+            cout << "  [" << pair.first << "] description: " << strip_non_ascii(pair.second.description) << endl;
         }
         if (this->sync_required_publishedfield_ids) {
             cout << "required publishedfield ids: ";
