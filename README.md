@@ -2,6 +2,8 @@
 
 Create and update Steam Workshop item at ease.
 
+> **Windows only.** This tool uses Win32 APIs and is not supported on Linux or macOS.
+
 ## Usage
 
 1. Create a YAML file(ex: `metadata.yml`) with the same format as [Example YAML file](#example-yaml-file).

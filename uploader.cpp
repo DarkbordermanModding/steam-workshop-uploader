@@ -8,6 +8,7 @@ using namespace std;
 
 
 int main(int argc, char *argv[]){
+    SetConsoleOutputCP(CP_UTF8);
     if(argc != 2){
         cout << "Only need file path to run";
         return 1;
