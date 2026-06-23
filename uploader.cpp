@@ -8,6 +8,7 @@ using namespace std;
 
 
 int main(int argc, char *argv[]){
+    SetConsoleOutputCP(CP_UTF8);
     if(argc != 2){
         cout << "Only need file path to run";
         return 1;
@@ -69,6 +70,26 @@ int main(int argc, char *argv[]){
         else if(workshop.submit_status == -1){
             cout << "Upload action failed" << endl;
             break;
+        }
+    }
+
+    for(auto &pair : metadata.localizations){
+        cout << "Uploading localization: " << pair.first << endl;
+        workshop.StartLocaleUpdate(metadata, pair.first, pair.second);
+        while(true){
+            SteamAPI_RunCallbacks();
+            Sleep(500);
+            if(workshop.submit_status == 1){
+                cout << "Localization upload success: " << pair.first << endl;
+                break;
+            }
+            else if(workshop.submit_status == 0){
+                cout << "Uploading" << endl;
+            }
+            else if(workshop.submit_status == -1){
+                cout << "Localization upload failed: " << pair.first << endl;
+                break;
+            }
         }
     }
 
