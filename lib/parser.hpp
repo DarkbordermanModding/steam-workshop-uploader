@@ -38,22 +38,30 @@ class Metadata {
     Metadata(string path){
         string directory = getAbsoluteDirectory(path);
 
-        this->app_id = stoull(exec("yq -r \".workshop.app_id\" " + path));
-        this->publishedfield_id = stoull(exec("yq -r \".workshop.publishedfield_id\" " + path));
-        this->visibility = static_cast<ERemoteStoragePublishedFileVisibility>(stoi(exec("yq -r \".workshop.visibility\" " + path)));
+        bool has_workshop = exec("yq -r \"has(\\\"workshop\\\")\" " + path) == "true";
+        bool has_steam_workshop = exec("yq -r \"has(\\\"steam_workshop\\\")\" " + path) == "true";
+        if (has_workshop && has_steam_workshop)
+            throw runtime_error("Use only one root key: steam_workshop or workshop");
+        if (!has_workshop && !has_steam_workshop)
+            throw runtime_error("Missing root key: steam_workshop (or workshop)");
+        string root = has_steam_workshop ? ".steam_workshop" : ".workshop";
 
-        this->content_folder = getAbsolutePath(directory, exec("yq -r \".workshop.content_folder\" " + path));
-        this->preview_path = getAbsolutePath(directory, exec("yq -r \".workshop.preview_path\" " + path));
+        this->app_id = stoull(exec("yq -r \"" + root + ".app_id\" " + path));
+        this->publishedfield_id = stoull(exec("yq -r \"" + root + ".publishedfield_id\" " + path));
+        this->visibility = static_cast<ERemoteStoragePublishedFileVisibility>(stoi(exec("yq -r \"" + root + ".visibility\" " + path)));
 
-        string previews_check = exec("yq -r \".workshop.additional_previews\" " + path);
+        this->content_folder = getAbsolutePath(directory, exec("yq -r \"" + root + ".content_folder\" " + path));
+        this->preview_path = getAbsolutePath(directory, exec("yq -r \"" + root + ".preview_path\" " + path));
+
+        string previews_check = exec("yq -r \"" + root + ".additional_previews\" " + path);
         if (previews_check != "null") {
             this->sync_additional_previews = true;
-            string previews_str = exec("yq -r \".workshop.additional_previews | join(\\\",\\\")\" " + path);
+            string previews_str = exec("yq -r \"" + root + ".additional_previews | join(\\\",\\\")\" " + path);
             for (auto& s : split_string(previews_str, ','))
                 if (!s.empty()) this->additional_previews.push_back(getAbsolutePath(directory, s));
         }
 
-        this->tags_str = exec("yq -r \".workshop.tags | join(\\\",\\\")\" " + path);
+        this->tags_str = exec("yq -r \"" + root + ".tags | join(\\\",\\\")\" " + path);
         vector<string> tags = split_string(this->tags_str, ',');
         const char** m_ppStrings = new const char*[tags.size()];
         for (size_t i = 0; i < tags.size(); ++i) {
@@ -63,14 +71,14 @@ class Metadata {
         this->tags.m_nNumStrings = tags.size();
 
         // Parse localizations
-        string langs_str = exec("yq -r \".workshop.localizations | keys | join(\\\",\\\")\" " + path);
+        string langs_str = exec("yq -r \"" + root + ".localizations | keys | join(\\\",\\\")\" " + path);
         vector<string> langs = split_string(langs_str, ',');
         for (auto &lang : langs) {
             if (lang.empty()) continue;
             Localization loc;
-            loc.title = exec("yq -r \".workshop.localizations." + lang + ".title\" " + path);
+            loc.title = exec("yq -r \"" + root + ".localizations." + lang + ".title\" " + path);
 
-            string desc_path_raw = exec("yq -r \".workshop.localizations." + lang + ".description_path\" " + path);
+            string desc_path_raw = exec("yq -r \"" + root + ".localizations." + lang + ".description_path\" " + path);
             if (desc_path_raw != "null" && !desc_path_raw.empty()) {
                 string desc_path = getAbsolutePath(directory, desc_path_raw);
                 ifstream desc_file(desc_path);
@@ -80,26 +88,26 @@ class Metadata {
                 string md_content((istreambuf_iterator<char>(desc_file)), istreambuf_iterator<char>());
                 loc.description = md_to_steam(md_content);
             } else {
-                loc.description = exec("yq -r \".workshop.localizations." + lang + ".description\" " + path);
+                loc.description = exec("yq -r \"" + root + ".localizations." + lang + ".description\" " + path);
             }
 
             this->localizations[lang] = loc;
         }
 
-        string req_items_check = exec("yq -r \".workshop.required_publishedfield_ids\" " + path);
+        string req_items_check = exec("yq -r \"" + root + ".required_publishedfield_ids\" " + path);
         if (req_items_check != "null") {
             this->sync_required_publishedfield_ids = true;
-            string ids_str = exec("yq -r \".workshop.required_publishedfield_ids | join(\\\",\\\")\" " + path);
+            string ids_str = exec("yq -r \"" + root + ".required_publishedfield_ids | join(\\\",\\\")\" " + path);
             if (!ids_str.empty()) {
                 for (auto& s : split_string(ids_str, ','))
                     if (!s.empty()) this->required_publishedfield_ids.push_back(stoull(s));
             }
         }
 
-        string req_apps_check = exec("yq -r \".workshop.required_app_ids\" " + path);
+        string req_apps_check = exec("yq -r \"" + root + ".required_app_ids\" " + path);
         if (req_apps_check != "null") {
             this->sync_required_app_ids = true;
-            string ids_str = exec("yq -r \".workshop.required_app_ids | join(\\\",\\\")\" " + path);
+            string ids_str = exec("yq -r \"" + root + ".required_app_ids | join(\\\",\\\")\" " + path);
             if (!ids_str.empty()) {
                 for (auto& s : split_string(ids_str, ','))
                     if (!s.empty()) this->required_app_ids.push_back(stoul(s));

@@ -32,7 +32,7 @@ To test the uploader, use same step in #Usage
 
 ## Example YAML file
 ```yml
-workshop:
+steam_workshop:
   app_id: 480
   publishedfield_id: 2147483647
   visibility: 2
@@ -54,6 +54,8 @@ workshop:
 ```
 
 ## YAML properties description
+The root key is `steam_workshop`. The older `workshop` key still works, but a file must use only one of them.
+
 | Name | Value type | Description | Example |
 | --- | --- | --- | --- |
 | app_id | integer | Game's application ID | `480` |
