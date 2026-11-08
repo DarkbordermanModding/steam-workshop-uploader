@@ -37,6 +37,7 @@ workshop:
   publishedfield_id: 2147483647
   visibility: 2
   preview_path: preview.png
+  additional_previews: [ screenshot1.png, screenshot2.png ]
   content_folder: "./example/"
   tags: [ tag1, tag2 ]
   localizations:
@@ -59,7 +60,8 @@ workshop:
 | publishedfield_id | integer | Workshop item's published file ID, set to `0` for a newly uploaded item | `2147483647` |
 | visibility | integer(0/1/2/3) | Visibility of the workshop item (public/friends only/private/unlisted) | `2` |
 | tags | list of string | Tags of the workshop item | `[ tag1, tag2 ]` |
-| preview_path | string | Relative or absolute path of the preview image | `preview.png` |
+| preview_path | string | Relative or absolute path of the thumbnail image, shown in workshop browse and search results. Also shown on the item page when there are no additional previews | `preview.png` |
+| additional_previews | list of string (optional) | Relative or absolute paths of gallery images shown on the item page, each under 1MB. If present, replaces all existing additional previews. | `[ screenshot1.png, screenshot2.png ]` |
 | content_folder | string | Relative or absolute path of the workshop item folder | `./example` |
 | localizations | map | Per-language title and description, keyed by Steam language code | see below |
 | required_publishedfield_ids | list of integer (optional) | Required Workshop item dependencies by published file ID. If present, replaces all existing dependencies. | `[ 123456789, 987654321 ]` |

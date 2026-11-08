@@ -45,6 +45,20 @@ class Workshop
         CCallResult<Workshop, RemoveAppDependencyResult_t> m_RemoveDLCDepResult;
         CCallResult<Workshop, AddAppDependencyResult_t> m_AddDLCDepResult;
 
+        // Preview query state
+        CCallResult<Workshop, SteamUGCQueryCompleted_t> m_PreviewQueryResult;
+        int preview_query_status = 0;   // 0=pending, 1=done, -1=failed
+        uint32 existing_preview_count = 0;
+
+        void StartPreviewQuery(PublishedFileId_t fileId) {
+            UGCQueryHandle_t qHandle = SteamUGC()->CreateQueryUGCDetailsRequest(&fileId, 1);
+            SteamUGC()->SetReturnAdditionalPreviews(qHandle, true);
+            // A stale count would remove the wrong indices
+            SteamUGC()->SetAllowCachedResponse(qHandle, 0);
+            SteamAPICall_t call = SteamUGC()->SendQueryUGCRequest(qHandle);
+            m_PreviewQueryResult.Set(call, this, &Workshop::OnPreviewQuery);
+        }
+
         void StartCreate(int app_id){
             SteamAPICall_t callback = SteamUGC()->CreateItem(app_id, static_cast<EWorkshopFileType>(0));
             m_CreateItemResult.Set(callback, this, &Workshop::OnGetCreateStatus);
@@ -61,6 +75,14 @@ class Workshop
             SteamUGC()->SetItemTags(handle, &metadata.tags);
             // WARN: steam_appid.txt MUST MATCH APP_ID
             SteamUGC()->SetItemPreview(handle, metadata.preview_path.c_str());
+            if(metadata.sync_additional_previews && preview_query_status == 1){
+                // Remove from the end so remaining indices don't shift
+                for(uint32 i = existing_preview_count; i > 0; i--)
+                    SteamUGC()->RemoveItemPreview(handle, i - 1);
+                for(auto &p : metadata.additional_previews)
+                    if(!SteamUGC()->AddItemPreviewFile(handle, p.c_str(), k_EItemPreviewType_Image))
+                        cout << "Warning: failed to add preview " << p << endl;
+            }
             SteamUGC()->SetItemContent(handle, metadata.content_folder.c_str());
             SteamAPICall_t callback = SteamUGC()->SubmitItemUpdate(handle, NULL);
             m_SubmitItemUpdateResult.Set(callback, this, &Workshop::OnGetUploadStatus);
@@ -167,6 +189,16 @@ class Workshop
             else{
                 this->submit_status = -1;
             }
+        }
+
+        void OnPreviewQuery(SteamUGCQueryCompleted_t* result, bool bIOFailure) {
+            if (bIOFailure || result->m_eResult != k_EResultOK) {
+                preview_query_status = -1;
+                return;
+            }
+            existing_preview_count = SteamUGC()->GetQueryUGCNumAdditionalPreviews(result->m_handle, 0);
+            SteamUGC()->ReleaseQueryUGCRequest(result->m_handle);
+            preview_query_status = 1;
         }
 
         void OnModDepQuery(SteamUGCQueryCompleted_t* result, bool bIOFailure) {
