@@ -55,6 +55,23 @@ int main(int argc, char *argv[]){
         }
     }
 
+    if(metadata.sync_additional_previews){
+        // A newly created item has no previews yet
+        if(metadata.publishedfield_id == 0){
+            workshop.preview_query_status = 1;
+        }
+        else{
+            workshop.StartPreviewQuery(metadata.publishedfield_id);
+            while(workshop.preview_query_status == 0){
+                SteamAPI_RunCallbacks();
+                Sleep(500);
+                cout << "Querying existing previews..." << endl;
+            }
+            if(workshop.preview_query_status == -1)
+                cout << "Warning: failed to query existing previews, skipping preview sync" << endl;
+        }
+    }
+
     workshop.StartUpdate(metadata);
     while(true){
         SteamAPI_RunCallbacks();

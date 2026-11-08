@@ -23,6 +23,8 @@ class Metadata {
         unsigned long app_id;
         unsigned long publishedfield_id;
         string preview_path;
+        bool sync_additional_previews = false;
+        vector<string> additional_previews;
         string content_folder;
         ERemoteStoragePublishedFileVisibility visibility;
         SteamParamStringArray_t tags;
@@ -42,6 +44,14 @@ class Metadata {
 
         this->content_folder = getAbsolutePath(directory, exec("yq -r \".workshop.content_folder\" " + path));
         this->preview_path = getAbsolutePath(directory, exec("yq -r \".workshop.preview_path\" " + path));
+
+        string previews_check = exec("yq -r \".workshop.additional_previews\" " + path);
+        if (previews_check != "null") {
+            this->sync_additional_previews = true;
+            string previews_str = exec("yq -r \".workshop.additional_previews | join(\\\",\\\")\" " + path);
+            for (auto& s : split_string(previews_str, ','))
+                if (!s.empty()) this->additional_previews.push_back(getAbsolutePath(directory, s));
+        }
 
         this->tags_str = exec("yq -r \".workshop.tags | join(\\\",\\\")\" " + path);
         vector<string> tags = split_string(this->tags_str, ',');
@@ -109,6 +119,13 @@ class Metadata {
         cout << "publishfield_id: " << this->publishedfield_id << endl;
         cout << "visibility: " << this->visibility << endl;
         cout << "preview path: " << this->preview_path << endl;
+        if (this->sync_additional_previews) {
+            cout << "additional previews:" << endl;
+            for (auto& p : this->additional_previews)
+                cout << "  " << p << endl;
+        } else {
+            cout << "additional previews: (unmodified)" << endl;
+        }
         cout << "content folder: " << this->content_folder << endl;
         cout << "tags: " << this->tags_str << endl;
         for (auto &pair : this->localizations) {
