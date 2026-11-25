@@ -1,0 +1,17 @@
+steam_workshop:
+  app_id: 480
+  publishedfield_id: 3844278080
+  visibility: 2
+  preview_path: preview.png
+  additional_previews: [ shot1.png, shot2.png ]
+  content_folder: "./content/"
+  tags: [ "Quality of Life", UI ]
+  localizations:
+    english:
+      title: English title
+      description_path: description.md
+    schinese:
+      title: 中文标题
+      description: 中文描述
+  required_publishedfield_ids: [ 111, 222 ]
+  required_app_ids: [ 12345 ]

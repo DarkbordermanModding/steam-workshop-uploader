@@ -1,0 +1,11 @@
+steam_workshop:
+  app_id: 480
+  publishedfield_id: 5000000000
+  visibility: 2
+  preview_path: preview.png
+  content_folder: content
+  localizations:
+    english:
+      title: T
+      description: D
+  required_publishedfield_ids: [ 5000000001 ]

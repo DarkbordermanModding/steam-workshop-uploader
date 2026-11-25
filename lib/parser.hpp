@@ -21,7 +21,7 @@ struct Localization {
 class Metadata {
     public:
         unsigned long app_id;
-        unsigned long publishedfield_id;
+        PublishedFileId_t publishedfield_id;
         string preview_path;
         bool sync_additional_previews = false;
         vector<string> additional_previews;

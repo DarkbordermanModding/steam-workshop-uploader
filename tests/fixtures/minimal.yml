@@ -1,0 +1,10 @@
+workshop:
+  app_id: 480
+  publishedfield_id: 0
+  visibility: 0
+  preview_path: preview.png
+  content_folder: content
+  localizations:
+    english:
+      title: Minimal
+      description: Plain

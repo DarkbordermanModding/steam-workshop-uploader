@@ -18,7 +18,7 @@ class Workshop
         SubmitItemUpdateResult_t SubmitItemUpdateResult;
         CreateItemResult_t CreateItemResult;
         int create_status = 0;
-        int created_publishfield = 0;
+        PublishedFileId_t created_publishfield = 0;
         int submit_status = 0;
 
         // Dep query state

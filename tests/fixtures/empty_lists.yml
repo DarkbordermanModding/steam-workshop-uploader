@@ -1,0 +1,14 @@
+steam_workshop:
+  app_id: 480
+  publishedfield_id: 0
+  visibility: 2
+  preview_path: preview.png
+  content_folder: content
+  additional_previews: []
+  tags: []
+  localizations:
+    english:
+      title: T
+      description: D
+  required_publishedfield_ids: []
+  required_app_ids: []
