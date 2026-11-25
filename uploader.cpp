@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    Metadata metadata = Metadata(argv[1]);
+    Metadata metadata(argv[1]);
 
     metadata.sync_steam_appid_txt();
     metadata.display_workshop_metadata();

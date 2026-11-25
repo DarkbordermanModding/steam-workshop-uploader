@@ -72,7 +72,8 @@ class Workshop
             SteamUGC()->SetItemTitle(handle, "Untitled");
             SteamUGC()->SetItemDescription(handle, "No description provided");
             SteamUGC()->SetItemVisibility(handle, metadata.visibility);
-            SteamUGC()->SetItemTags(handle, &metadata.tags);
+            if(metadata.sync_tags)
+                SteamUGC()->SetItemTags(handle, &metadata.tags);
             // WARN: steam_appid.txt MUST MATCH APP_ID
             SteamUGC()->SetItemPreview(handle, metadata.preview_path.c_str());
             if(metadata.sync_additional_previews && preview_query_status == 1){

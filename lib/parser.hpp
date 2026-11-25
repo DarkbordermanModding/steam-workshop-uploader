@@ -29,6 +29,7 @@ class Metadata {
         ERemoteStoragePublishedFileVisibility visibility;
         SteamParamStringArray_t tags;
         string tags_str;
+        bool sync_tags = false;
         map<string, Localization> localizations;
         bool sync_required_publishedfield_ids = false;
         vector<PublishedFileId_t> required_publishedfield_ids;
@@ -61,14 +62,16 @@ class Metadata {
                 if (!s.empty()) this->additional_previews.push_back(getAbsolutePath(directory, s));
         }
 
-        this->tags_str = exec("yq -r \"" + root + ".tags | join(\\\",\\\")\" " + path);
-        vector<string> tags = split_string(this->tags_str, ',');
-        const char** m_ppStrings = new const char*[tags.size()];
-        for (size_t i = 0; i < tags.size(); ++i) {
-            m_ppStrings[i] = tags[i].c_str();
+        if (exec("yq -r \"" + root + ".tags\" " + path) != "null") {
+            this->sync_tags = true;
+            this->tags_str = exec("yq -r \"" + root + ".tags | join(\\\",\\\")\" " + path);
+            for (auto& t : split_string(this->tags_str, ','))
+                if (!t.empty()) this->tag_values.push_back(t);
+            for (auto& t : this->tag_values)
+                this->tag_ptrs.push_back(t.c_str());
         }
-        this->tags.m_ppStrings = m_ppStrings;
-        this->tags.m_nNumStrings = tags.size();
+        this->tags.m_ppStrings = this->tag_ptrs.data();
+        this->tags.m_nNumStrings = this->tag_ptrs.size();
 
         // Parse localizations
         string langs_str = exec("yq -r \"" + root + ".localizations | keys | join(\\\",\\\")\" " + path);
@@ -115,6 +118,10 @@ class Metadata {
         }
     }
 
+    // Copying would leave tags pointing into the old object's strings
+    Metadata(const Metadata&) = delete;
+    Metadata& operator=(const Metadata&) = delete;
+
     void sync_steam_appid_txt(){
         cout << "Sync app_id.txt from yml, create if not exist" << endl;
         ofstream outFile("steam_appid.txt");
@@ -135,7 +142,12 @@ class Metadata {
             cout << "additional previews: (unmodified)" << endl;
         }
         cout << "content folder: " << this->content_folder << endl;
-        cout << "tags: " << this->tags_str << endl;
+        if (!this->sync_tags)
+            cout << "tags: (unmodified)" << endl;
+        else if (this->tag_values.empty())
+            cout << "tags: (remove all)" << endl;
+        else
+            cout << "tags: " << this->tags_str << endl;
         for (auto &pair : this->localizations) {
             cout << "  [" << pair.first << "] title: " << pair.second.title << endl;
             cout << "  [" << pair.first << "] description: " << pair.second.description << endl;
@@ -162,5 +174,10 @@ class Metadata {
         }
         cout << endl;
     }
+
+    private:
+        // Own the strings that tags.m_ppStrings points into
+        vector<string> tag_values;
+        vector<const char*> tag_ptrs;
 };
 #endif

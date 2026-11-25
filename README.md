@@ -61,7 +61,7 @@ The root key is `steam_workshop`. The older `workshop` key still works, but a fi
 | app_id | integer | Game's application ID | `480` |
 | publishedfield_id | integer | Workshop item's published file ID, set to `0` for a newly uploaded item | `2147483647` |
 | visibility | integer(0/1/2/3) | Visibility of the workshop item (public/friends only/private/unlisted) | `2` |
-| tags | list of string | Tags of the workshop item | `[ tag1, tag2 ]` |
+| tags | list of string (optional) | Tags of the workshop item. If present, replaces all existing tags; `[]` removes all tags. If omitted, tags are unchanged. | `[ tag1, tag2 ]` |
 | preview_path | string | Relative or absolute path of the thumbnail image, shown in workshop browse and search results. Also shown on the item page when there are no additional previews | `preview.png` |
 | additional_previews | list of string (optional) | Relative or absolute paths of gallery images shown on the item page, each under 1MB. If present, replaces all existing additional previews. | `[ screenshot1.png, screenshot2.png ]` |
 | content_folder | string | Relative or absolute path of the workshop item folder | `./example` |
